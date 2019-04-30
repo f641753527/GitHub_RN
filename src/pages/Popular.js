@@ -41,8 +41,8 @@ export default class Popular extends Component {
           tabStyle: styles.tabStyle,
           scrollEnabled: true,
           style: { backgroundColor: '#678' },
-          indicatorStyle: { height: 1, backgroundColor: '#fff' },
-          labelStyle: { fontSize: 12, marginTop: 6, marginBottom: 6, paddingLeft: 2, },
+          indicatorStyle: { height: 2, backgroundColor: '#fff' },
+          labelStyle: { fontSize: 14, marginTop: 6, marginBottom: 6, paddingLeft: 2, },
         },
       }));
     }
