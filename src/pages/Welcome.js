@@ -15,7 +15,7 @@ export default class Welcome extends Component {
       NavigatorUtils.resetToHome({
         navigation: this.props.navigation
       });
-    }, 200);
+    }, 1000);
   }
 
   componentWillUnmount() {
