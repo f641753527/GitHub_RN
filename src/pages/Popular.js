@@ -68,12 +68,22 @@ class PopularTab extends Component {
     NavigatorUtils.navigateToPage({navigation: this.props.navigation}, 'Detail');
   }
 
+  fetch = () => {
+    NavigatorUtils.navigateToPage({navigation: this.props.navigation}, 'Fetch');
+  }
+
+  storage = () => {
+    NavigatorUtils.navigateToPage({navigation: this.props.navigation}, 'Storage');
+  }
+
   render() {
     return (
       <View>
         <Text>top tabbar</Text>
         <Text>{this.props.title}</Text>
         <Text onPress={this.test}>detail</Text>
+        <Text onPress={this.fetch}>fetch</Text>
+        <Text onPress={this.storage}>Storage</Text>
       </View>
     )
   }

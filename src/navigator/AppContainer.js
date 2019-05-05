@@ -5,6 +5,8 @@ import { createReactNavigationReduxMiddleware, createReduxContainer } from 'reac
 import Welcome from '../pages/Welcome';
 import Home from '../pages/Home';
 import Detail from '../pages/Detail';
+import Fetch from '../pages/Fetch';
+import Storage from '../pages/Storage';
 
 export const rootCom = 'Init';//设置根路由
 
@@ -27,6 +29,12 @@ const MainStack = createStackNavigator({
   },
   Detail: {
     screen: Detail,
+  },
+  Fetch: {
+    screen: Fetch,
+  },
+  Storage: {
+    screen: Storage,
   },
 });
 
