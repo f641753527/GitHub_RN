@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
-
+import FetchData from '../utils/FetchData';
 export default class Fetch extends Component{
   
   constructor(props) {
@@ -8,6 +8,7 @@ export default class Fetch extends Component{
     this.state = {
       keyword: '',
     };
+    this.fetch = new FetchData();
   }
 
   handleTextChange = (text) => {
@@ -19,15 +20,10 @@ export default class Fetch extends Component{
   search = () => {
     const url = `https://api.github.com/search/repositories?q=${this.state.keyword}`;
     console.log('search begin...');
-    fetch(url).then((response) => {
-      if (response.ok) {
-        return response.json()
-      }
-      throw new Error('请求数据失败');
-    }).then((res) => {
+    this.fetch.fetchData(url).then((res) => {
       console.log(res);
     }).catch((e) => {
-      console.error(e);
+      console.log(e);
     });
   }
 
