@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View, Button} from 'react-native';
-import {connect} from 'react-redux'
+import {connect} from 'react-redux';
 
-import { UPDATE_THEME } from '../redux/action/theme';
+import * as actions from '../redux/action/theme';
 
 class Favorite extends Component {
 
@@ -29,7 +29,7 @@ class Favorite extends Component {
 const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
-  UPDATE_THEME: (theme) => dispatch(UPDATE_THEME(theme)),
+  UPDATE_THEME: (theme) => dispatch(actions.UPDATE_THEME(theme)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Favorite);

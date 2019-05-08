@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View} from 'react-native';
+import { StyleSheet, Text, View, FlatList, RefreshControl} from 'react-native';
 import { createMaterialTopTabNavigator, createAppContainer } from "react-navigation";
-import NavigatorUtils from '../navigator/NavigatorUtils';
+import {connect} from 'react-redux';
+import * as actions from '../redux/action/popular';
 
 const TABS = ['Android', 'IOS', 'Front-End', 'Go Lang', 'PHP', 'Java', 'JavaScript', 'C++', 'Python', 'Ruby', 'C', 'NodeJs'];
 
@@ -29,7 +30,7 @@ export default class Popular extends Component {
     if (this.state.tabs && this.state.tabs.length) {
       this.state.tabs.forEach((tab, i) => {
         tabRouteConfig[`tab${i}`] = {
-          screen: (props) => <PopularTab {...props} title={tab}/>,
+          screen: (props) => <PopularTabPage {...props} title={tab}/>,
           navigationOptions: {
             title: tab,
           },
@@ -64,27 +65,53 @@ const styles = StyleSheet.create({
 
 class PopularTab extends Component {
 
-  test = () => {
-    NavigatorUtils.navigateToPage({navigation: this.props.navigation}, 'Detail');
+  constructor(props) {
+    super(props);
+    this.title = this.props.title;
   }
 
-  fetch = () => {
-    NavigatorUtils.navigateToPage({navigation: this.props.navigation}, 'Fetch');
-  }
-
-  storage = () => {
-    NavigatorUtils.navigateToPage({navigation: this.props.navigation}, 'Storage');
-  }
-
-  render() {
+  __render_item = (data) => {
+    const {item}= data;
+    console.log(item);
     return (
       <View>
-        <Text>top tabbar</Text>
-        <Text>{this.props.title}</Text>
-        <Text onPress={this.test}>detail</Text>
-        <Text onPress={this.fetch}>fetch</Text>
-        <Text onPress={this.storage}>Storage</Text>
+        <Text>{item.id}</Text>
       </View>
+    );
+  }
+
+  _onRefresh = () => {
+    this.props.LOAD_POPULAR_REFRESH(this.title, this.gen_url(this.title));
+  }
+
+  gen_url = (title) => {
+    return `https://api.github.com/search/repositories?q=${this.title}&sort=stars`;
+  }
+
+
+  render() {
+    const {popular} = this.props;
+    let store = popular[this.title];
+    if (!store) {
+      store = {
+        items: [],
+        is_loading: false,
+      };
+    }
+    return (
+      <FlatList data={store.items} renderItem={this.__render_item} keyExtractor={(item) => item.id.toString()}
+        refreshControl={  <RefreshControl refreshing={store.is_loading}  onRefresh={this._onRefresh } />}
+      />
     )
   }
 }
+
+const mapStateToProps = state => ({
+  popular: state.popular,
+});
+
+const mapDispatchToProps = dispatch => ({
+  LOAD_POPULAR_REFRESH: (label, url) => dispatch(actions.LOAD_POPULAR_REFRESH(label, url))
+});
+
+const PopularTabPage = connect(mapStateToProps, mapDispatchToProps)(PopularTab);

@@ -1,4 +1,4 @@
-import * as Types from '../../action/theme/types';
+import * as Types from '../../action/types';
 
 const initState = {
   theme: 'yellow',

@@ -7,7 +7,7 @@ export default class FetchData {
     return new Promise((resolve, reject) => {
       this.fetchLocalData(url).then((res) => {
         if (res && this.checkoutTimestamp(res.timestamp)) {
-          resolve(res);
+          resolve(res.data);
           return;
         }
         throw new Error('本地数据拉取失败!');
