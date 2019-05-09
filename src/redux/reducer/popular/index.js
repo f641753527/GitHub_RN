@@ -9,7 +9,9 @@ const initState = {
  * popular: {
  *    java: {
  *      is_loading: false,
- *      items: [],
+ *      items: [],  // 原始数据
+ *      projectModal: [], 分页数据
+ *      pageIndex: 1, // 页码 1开始
  *    },
  *    php: {
  *      is_loading: false,
@@ -24,15 +26,16 @@ const initState = {
 
 export default function popularReducer(state = initState, action) {
   switch(action.type) {
-    case Types.LOAD_POPULAR_REFRESH:
+    case Types.POPULAR_REFRESH:
       return {
         ...state,
         [action.label]: {
           ...state[action.label],
           is_loading: true,
+          pageIndex: 1,
         },
       };
-    case Types.LOAD_POPULAR_ERROR:
+    case Types.POPULAR_REFRESH_ERROR:
       return {
         ...state,
         [action.label]: {
@@ -40,15 +43,34 @@ export default function popularReducer(state = initState, action) {
           is_loading: false,
         },
       };
-    case Types.LOAD_POPULAR_SUCCESS:
+    case Types.POPULAR_REFRESH_SUCCESS:
       return {
         ...state,
         [action.label]: {
           ...state[action.label],
           items: action.data,
+          projectModel: action.projectModel,
           is_loading: false,
         },
       };
+      case Types.POPULAR_LOAD_MORE:
+        return {
+          ...state,
+          [action.label]: {
+            ...state[action.label],
+            load_more: true,
+            pageIndex: action.pageIndex,
+          },
+        };
+      case Types.POPULAR_LOAD_MORE_SUCCESS:
+        return {
+          ...state,
+          [action.label]: {
+            ...state[action.label],
+            projectModel: action.projectModel,
+            load_more: false,
+          },
+        };
     default: 
     return state;
   }

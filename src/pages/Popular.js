@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, FlatList, RefreshControl} from 'react-native';
+import { StyleSheet, Text, View, FlatList, RefreshControl, ActivityIndicator} from 'react-native';
 import { createMaterialTopTabNavigator, createAppContainer } from "react-navigation";
 import {connect} from 'react-redux';
 import * as actions from '../redux/action/popular';
+
+import PopularItem from '../components/PopularItem';
 
 const TABS = ['Android', 'IOS', 'Front-End', 'Go Lang', 'PHP', 'Java', 'JavaScript', 'C++', 'Python', 'Ruby', 'C', 'NodeJs'];
 
@@ -63,6 +65,9 @@ const styles = StyleSheet.create({
   },
 });
 
+
+
+const pageSize = 10;
 class PopularTab extends Component {
 
   constructor(props) {
@@ -70,37 +75,72 @@ class PopularTab extends Component {
     this.title = this.props.title;
   }
 
+  componentDidMount() {
+    this._onRefresh();
+  }
+
   __render_item = (data) => {
     const {item}= data;
-    console.log(item);
-    return (
-      <View>
-        <Text>{item.id}</Text>
-      </View>
-    );
+    return <PopularItem item={item} themeColor={this.props.themeColor}/>
+  }
+
+  _store = () => {
+    const {popular} = this.props;
+    let store = popular[this.title];
+    if (!store) {
+      store = {
+        projectModel: [],
+        items: [],
+        is_loading: false,
+        load_more: false,
+        pageIndex: 1,
+      };
+    }
+    return store;
   }
 
   _onRefresh = () => {
-    this.props.LOAD_POPULAR_REFRESH(this.title, this.gen_url(this.title));
+    this.all_loaded = false;
+    const pageIndex = this._store().pageIndex;
+    this.props.POPULAR_REFRESH(this.title, this.gen_url(this.title), pageIndex, pageSize);
+  }
+
+  load_more = () => {
+    if (!this.can_load_more) {
+      return;
+    }
+    this.can_load_more = false;
+    const store = this._store();
+    this.props.POPULAR_LOAD_MORE(this.title, store.items, store.pageIndex + 1, pageSize, () => {
+      this.all_loaded = true;
+    });
   }
 
   gen_url = (title) => {
     return `https://api.github.com/search/repositories?q=${this.title}&sort=stars`;
   }
 
+  __render_footer = () => {
+    let store = this._store();
+
+    return (
+      store.load_more ? 
+        <View style={{alignItems: 'center'}}>
+          <ActivityIndicator color={this.props.themeColor} size={26} style={{margin: 10}}/>
+          {this.all_loaded ? <Text>数据加载完毕...</Text> : <Text>正在加载中...</Text>}
+        </View>
+      : null
+    );
+  }
+
 
   render() {
-    const {popular} = this.props;
-    let store = popular[this.title];
-    if (!store) {
-      store = {
-        items: [],
-        is_loading: false,
-      };
-    }
+    const {popular, themeColor} = this.props;
+    let store = this._store();
     return (
-      <FlatList data={store.items} renderItem={this.__render_item} keyExtractor={(item) => item.id.toString()}
-        refreshControl={  <RefreshControl refreshing={store.is_loading}  onRefresh={this._onRefresh } />}
+      <FlatList data={store.projectModel} renderItem={this.__render_item} keyExtractor={(item) => item.id.toString()}
+        refreshControl={  <RefreshControl refreshing={store.is_loading}  onRefresh={this._onRefresh } colors={[themeColor]}/>}
+        ListFooterComponent={this.__render_footer} onEndReached = {this.load_more} onEndReachedThreshold={0.3} onMomentumScrollBegin={()=>{this.can_load_more = true;}}
       />
     )
   }
@@ -108,10 +148,12 @@ class PopularTab extends Component {
 
 const mapStateToProps = state => ({
   popular: state.popular,
+  themeColor: state.theme.theme
 });
 
 const mapDispatchToProps = dispatch => ({
-  LOAD_POPULAR_REFRESH: (label, url) => dispatch(actions.LOAD_POPULAR_REFRESH(label, url))
+  POPULAR_REFRESH: (label, url, pageIndex, pageSize) => dispatch(actions.POPULAR_REFRESH(label, url, pageIndex, pageSize)),
+  POPULAR_LOAD_MORE: (label, data, pageIndex, pageSize, cb) => dispatch(actions.POPULAR_LOAD_MORE(label,data, pageIndex, pageSize, cb))
 });
 
 const PopularTabPage = connect(mapStateToProps, mapDispatchToProps)(PopularTab);
