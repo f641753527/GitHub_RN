@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     top: 0,
-    bottom: 0
+    bottom: 0,
   },
   title: {
     fontSize: 20,

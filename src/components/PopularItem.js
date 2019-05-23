@@ -9,7 +9,7 @@ export default class PopularItem extends Component{
     if (!item || !item.full_name) return null;
 
     return (
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => {this.props.onPopularItemPress(item)}}>
         <View style={styles.container}>
           <Text style={styles.title}>{item.full_name}</Text>
           <Text style={styles.description}>{item.description}</Text>

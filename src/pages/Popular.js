@@ -4,6 +4,7 @@ import { createMaterialTopTabNavigator, createAppContainer } from "react-navigat
 import {connect} from 'react-redux';
 import * as actions from '../redux/action/popular';
 import NavigationBar from '../components/NavigationBar';
+import NavigatorUtils from '../navigator/NavigatorUtils';
 
 import PopularItem from '../components/PopularItem';
 
@@ -94,9 +95,13 @@ class PopularTab extends Component {
     this._onRefresh();
   }
 
+  onPopularItemPress = (projectModel) => {
+    NavigatorUtils.navigateToPage({projectModel}, 'Detail')
+  }
+
   __render_item = (data) => {
     const {item}= data;
-    return <PopularItem item={item} themeColor={this.props.themeColor}/>
+    return <PopularItem item={item} themeColor={this.props.themeColor} onPopularItemPress={this.onPopularItemPress}/>
   }
 
   _store = () => {

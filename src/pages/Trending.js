@@ -7,9 +7,11 @@ import {connect} from 'react-redux';
 import * as actions from '../redux/action/trending';
 import NavigationBar from '../components/NavigationBar';
 import KeyMap from '../model/KeyMap';
+import NavigatorUtils from '../navigator/NavigatorUtils';
 
 import TrendingItem from '../components/TrendingItem';
 import TrendingDialog from '../components/TrendingDialog';
+import EventBus from '../utils/EventBus';
 
 const TABS = [
   new KeyMap('All', ''),
@@ -49,6 +51,9 @@ class Trending extends Component {
 
 
   __render_tabbar = () => {
+    if (this.tabbar) {
+      return this.tabbar;
+    }
     const tabRouteConfig = {};
     if (this.state.tabs && this.state.tabs.length) {
       this.state.tabs.forEach((tab, i) => {
@@ -59,7 +64,7 @@ class Trending extends Component {
           },
         }
       });
-      return createAppContainer(createMaterialTopTabNavigator(tabRouteConfig, {
+      this.tabbar = createAppContainer(createMaterialTopTabNavigator(tabRouteConfig, {
         tabBarOptions: {
           upperCaseLabel: false,
           tabStyle: styles.tabStyle,
@@ -69,6 +74,7 @@ class Trending extends Component {
           labelStyle: { fontSize: 14, marginTop: 6, marginBottom: 6, paddingLeft: 2, },
         },
       }));
+      return this.tabbar;
     }
     return null;
   }
@@ -87,6 +93,8 @@ class Trending extends Component {
   onTimeSpanSelect = (v) => {
     this.setState({
       timeSpan: v,
+    }, () => {
+      EventBus.emit(EventBus.EVENT_TYPE_TIMESPAN_CHANGE, v);
     });
   }
 
@@ -134,15 +142,30 @@ class TrendingTab extends Component {
   constructor(props) {
     super(props);
     this.title = this.props.title;
+    this.timeSpan = this.props.timeSpan
   }
 
   componentDidMount() {
     this._onRefresh();
+    this.listener = EventBus.on(EventBus.EVENT_TYPE_TIMESPAN_CHANGE, (timeSpan) => {
+      this.timeSpan = timeSpan;
+      this._onRefresh();
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.listener) {
+      EventBus.remove(this.listener);
+    }
+  }
+
+  onTrendingItemPress = (projectModel) => {
+    NavigatorUtils.navigateToPage({projectModel}, 'Detail')
   }
 
   __render_item = (data) => {
     const {item}= data;
-    return <TrendingItem item={item} themeColor={this.props.themeColor}/>
+    return <TrendingItem item={item} themeColor={this.props.themeColor} onTrendingItemPress={this.onTrendingItemPress}/>
   }
 
   _store = () => {
@@ -177,8 +200,7 @@ class TrendingTab extends Component {
   }
 
   gen_url = (title) => {
-    const { timeSpan } = this.props;
-    return `https://github.com/trending/${title}?since=${timeSpan.value}`;
+    return `https://github.com/trending/${title}?since=${this.timeSpan.value}`;
   }
 
   __render_footer = () => {

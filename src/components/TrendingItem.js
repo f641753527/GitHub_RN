@@ -12,7 +12,7 @@ export default class TrendingItem extends Component{
     const description = `<p>${item.description}</p>`;
 
     return (
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => {this.props.onTrendingItemPress(item)}}>
         <View style={styles.container}>
           <Text style={styles.title}>{item.fullName}</Text>
           <HTMLView value={description} stylesheet={{p: styles.description, a: styles.description}}/>

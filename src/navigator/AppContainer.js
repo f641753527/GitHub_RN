@@ -36,7 +36,10 @@ const MainStack = createStackNavigator({
   Storage: {
     screen: Storage,
   },
-});
+}, {
+  defaultNavigationOptions: {
+  header: null,
+}});
 
 export const AppNavigator = createSwitchNavigator({
   Init: initStack,
