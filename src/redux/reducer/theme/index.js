@@ -1,7 +1,7 @@
 import * as Types from '../../action/types';
 
 const initState = {
-  theme: 'red',
+  theme: '#678',
 };
 
 export default function themeReducer(state = initState, action) {

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View, Button} from 'react-native';
 import {connect} from 'react-redux';
-
+import NavigationBar from '../components/NavigationBar';
 import * as actions from '../redux/action/theme';
 
 class Favorite extends Component {
@@ -17,8 +17,13 @@ class Favorite extends Component {
   }
 
   render() {
+    let statusBar = {
+      backgroundColor: this.props.themeColor,
+      barStyle: 'light-content',
+    };
     return (
       <View style={styles.container}>
+        <NavigationBar title='收藏' statusBar={statusBar} style={{backgroundColor: this.props.themeColor}}/>
         <Text style={styles.welcome}>收藏 Page</Text>
         <Button title='修改主题' onPress={this.__change_theme}/>
       </View>
@@ -26,7 +31,9 @@ class Favorite extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  themeColor: state.theme.theme,
+});
 
 const mapDispatchToProps = dispatch => ({
   UPDATE_THEME: (theme) => dispatch(actions.UPDATE_THEME(theme)),
@@ -37,9 +44,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(Favorite);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
   },
   welcome: {
     fontSize: 20,

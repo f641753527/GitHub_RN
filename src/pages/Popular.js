@@ -3,12 +3,13 @@ import { StyleSheet, Text, View, FlatList, RefreshControl, ActivityIndicator} fr
 import { createMaterialTopTabNavigator, createAppContainer } from "react-navigation";
 import {connect} from 'react-redux';
 import * as actions from '../redux/action/popular';
+import NavigationBar from '../components/NavigationBar';
 
 import PopularItem from '../components/PopularItem';
 
 const TABS = ['Android', 'IOS', 'Front-End', 'Go Lang', 'PHP', 'Java', 'JavaScript', 'C++', 'Python', 'Ruby', 'C', 'NodeJs'];
 
-export default class Popular extends Component {
+class Popular extends Component {
 
   constructor(props) {
     super(props);
@@ -43,7 +44,7 @@ export default class Popular extends Component {
           upperCaseLabel: false,
           tabStyle: styles.tabStyle,
           scrollEnabled: true,
-          style: { backgroundColor: '#678' },
+          style: { backgroundColor: this.props.themeColor },
           indicatorStyle: { height: 2, backgroundColor: '#fff' },
           labelStyle: { fontSize: 14, marginTop: 6, marginBottom: 6, paddingLeft: 2, },
         },
@@ -55,11 +56,25 @@ export default class Popular extends Component {
 
   render() {
     const TopTabBar = this.__render_tabbar();
-    return TopTabBar && <TopTabBar />
+    return (
+      <View style={styles.container}>
+        <NavigationBar title='最热' style={{backgroundColor: this.props.themeColor}}/>
+        {TopTabBar && <TopTabBar/>}
+      </View>
+    );
   }
 }
 
+const mapStateToProps1 = state => ({
+  themeColor: state.theme.theme
+});
+
+export default connect(mapStateToProps1)(Popular);
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   tabStyle: {
     width: 100,
   },
@@ -101,8 +116,7 @@ class PopularTab extends Component {
 
   _onRefresh = () => {
     this.all_loaded = false;
-    const pageIndex = this._store().pageIndex;
-    this.props.POPULAR_REFRESH(this.title, this.gen_url(this.title), pageIndex, pageSize);
+    this.props.POPULAR_REFRESH(this.title, this.gen_url(this.title), pageSize);
   }
 
   load_more = () => {
@@ -111,7 +125,7 @@ class PopularTab extends Component {
     }
     this.can_load_more = false;
     const store = this._store();
-    this.props.POPULAR_LOAD_MORE(this.title, store.items, store.pageIndex + 1, pageSize, () => {
+    this.props.POPULAR_LOAD_MORE(this.title, store.items, pageSize, store.pageIndex + 1, () => {
       this.all_loaded = true;
     });
   }
@@ -152,8 +166,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  POPULAR_REFRESH: (label, url, pageIndex, pageSize) => dispatch(actions.POPULAR_REFRESH(label, url, pageIndex, pageSize)),
-  POPULAR_LOAD_MORE: (label, data, pageIndex, pageSize, cb) => dispatch(actions.POPULAR_LOAD_MORE(label,data, pageIndex, pageSize, cb))
+  POPULAR_REFRESH: (label, url, pageSize) => dispatch(actions.POPULAR_REFRESH(label, url, pageSize)),
+  POPULAR_LOAD_MORE: (label, data, pageSize, pageIndex, cb) => dispatch(actions.POPULAR_LOAD_MORE(label,data, pageSize, pageIndex, cb))
 });
 
 const PopularTabPage = connect(mapStateToProps, mapDispatchToProps)(PopularTab);

@@ -1,18 +1,20 @@
+import GitHubTrending from 'GitHubTrending';
 import AsyncStore from './AsyncStore';
+import { MODULE } from '../redux/action/CONST';
 
 export default class FetchData {
 
 
-  fetchData(url) {
+  fetchData(url, module_name) {
     return new Promise((resolve, reject) => {
       this.fetchLocalData(url).then((res) => {
-        if (res && this.checkoutTimestamp(res.timestamp)) {
+        if (res && res.length && this.checkoutTimestamp(res.timestamp)) {
           resolve(res.data);
           return;
         }
         throw new Error('本地数据拉取失败!');
       }).catch(() => {
-        this.fetchServiceData(url).then((res) => {
+        this.fetchServiceData(url, module_name).then((res) => {
           resolve(res);
         }).catch((e) => {
           reject(e);
@@ -31,19 +33,28 @@ export default class FetchData {
     });
   }
 
-  fetchServiceData(url) {
+  fetchServiceData(url, module_name) {
     return new Promise((resolve, reject) => {
-      fetch(url).then((response) => {
-        if (response.ok) {
-          return response.json()
-        }
-        throw new Error('请求数据失败');
-      }).then((res) => {
-        this.savaLocalData(url, res);
-        resolve(res);
-      }).catch((e) => {
-        reject(e);
-      });
+      if (module_name === MODULE.POPULAR) {
+        fetch(url).then((response) => {
+          if (response.ok) {
+            return response.json()
+          }
+          throw new Error('请求数据失败');
+        }).then((res) => {
+          this.savaLocalData(url, res);
+          resolve(res);
+        }).catch((e) => {
+          reject(e);
+        });
+      } else {
+        new GitHubTrending().fetchTrending(url).then((data)=> {
+          this.savaLocalData(url, data);
+          resolve(data);
+        }).catch((error)=> {
+          reject(error);
+        });
+      }
     });
   }
 
